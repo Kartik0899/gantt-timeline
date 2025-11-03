@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { Task, Lane } from "../../types";
 
 interface TaskPanelProps {
-  task: any;
-  lanes: any[];
+  task: Task;
+  lanes: Lane[];
   onClose: () => void;
-  onSave: (changes: any) => void;
+  onSave: (changes: Partial<Task>) => void;
   onDelete?: (taskId: string) => void;
 }
 
@@ -91,7 +92,7 @@ export default function TaskPanel({
           <input
             type="text"
             value={local.name}
-            onChange={(e) => setLocal((s) => ({ ...s, name: e.target.value }))}
+            onChange={(e) => setLocal((s: Task) => ({ ...s, name: e.target.value }))}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Enter task name"
             autoFocus
@@ -107,7 +108,7 @@ export default function TaskPanel({
               type="date"
               value={local.start}
               onChange={(e) =>
-                setLocal((s) => ({ ...s, start: e.target.value }))
+                setLocal((s: Task) => ({ ...s, start: e.target.value }))
               }
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
@@ -119,7 +120,7 @@ export default function TaskPanel({
             <input
               type="date"
               value={local.end}
-              onChange={(e) => setLocal((s) => ({ ...s, end: e.target.value }))}
+              onChange={(e) => setLocal((s: Task) => ({ ...s, end: e.target.value }))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
@@ -132,7 +133,7 @@ export default function TaskPanel({
           <select
             value={local.laneId}
             onChange={(e) =>
-              setLocal((s) => ({ ...s, laneId: e.target.value }))
+              setLocal((s: Task) => ({ ...s, laneId: e.target.value }))
             }
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           >
@@ -152,7 +153,7 @@ export default function TaskPanel({
             type="text"
             value={local.assignee || ""}
             onChange={(e) =>
-              setLocal((s) => ({ ...s, assignee: e.target.value }))
+              setLocal((s: Task) => ({ ...s, assignee: e.target.value }))
             }
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Enter assignee"

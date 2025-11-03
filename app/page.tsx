@@ -10,11 +10,14 @@ import TaskPanel from "../components/panel/TaskPanel";
 import Toggle from "../components/UI/Toggle";
 import { loadState, saveState } from "../lib/storage";
 import { parseISO, addDays, startOfWeek, endOfWeek, format } from "date-fns";
+import { Task, Lane as LaneType, TimelineData } from "../types";
 
 export default function Page() {
-  const [data, setData] = useState(() => loadState() ?? seedData);
+  const [data, setData] = useState<TimelineData>(
+    () => loadState() ?? (seedData as TimelineData)
+  );
   const [view, setView] = useState<"week" | "month">("week");
-  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [mounted, setMounted] = useState(false);
   const [axisScrollLeft, setAxisScrollLeft] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -74,10 +77,10 @@ export default function Page() {
         days: Math.ceil((e.getTime() - s.getTime()) / (24 * 3600 * 1000)) + 1,
       };
     }
-    const starts = tasks.map((t) => parseISO(t.start));
-    const ends = tasks.map((t) => parseISO(t.end));
-    const min = new Date(Math.min(...starts.map((d) => d.getTime())));
-    const max = new Date(Math.max(...ends.map((d) => d.getTime())));
+    const starts = tasks.map((t: Task) => parseISO(t.start));
+    const ends = tasks.map((t: Task) => parseISO(t.end));
+    const min = new Date(Math.min(...starts.map((d: Date) => d.getTime())));
+    const max = new Date(Math.max(...ends.map((d: Date) => d.getTime())));
     const padding = view === "week" ? 7 : 14;
     const start = addDays(min, -padding);
     const end = addDays(max, padding);
@@ -110,7 +113,7 @@ export default function Page() {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const parsed = JSON.parse(String(e.target.result));
+        const parsed = JSON.parse(String(e.target?.result));
         setData(parsed);
       } catch (err) {
         alert("Invalid JSON file");
@@ -120,9 +123,12 @@ export default function Page() {
   };
 
   // update a task helper
-  const updateTask = (taskId, updater) => {
-    setData((prev) => {
-      const tasks = prev.tasks.map((t) =>
+  const updateTask = (
+    taskId: string,
+    updater: (task: Task) => Partial<Task>
+  ) => {
+    setData((prev: TimelineData) => {
+      const tasks = prev.tasks.map((t: Task) =>
         t.id === taskId ? { ...t, ...updater(t) } : t
       );
       return { ...prev, tasks };
@@ -131,7 +137,7 @@ export default function Page() {
 
   const addTask = () => {
     const id = "t" + Math.random().toString(36).slice(2, 8);
-    const newTask = {
+    const newTask: Task = {
       id,
       name: "",
       laneId: data.lanes[0].id,
@@ -267,7 +273,7 @@ export default function Page() {
             {/* Left lane panel - sticky */}
             <div className="w-56 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky left-0 z-20">
               <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {data.lanes.map((l) => (
+                {data.lanes.map((l: LaneType) => (
                   <div
                     key={l.id}
                     className="h-20 flex items-center px-4 bg-white dark:bg-gray-800"
@@ -307,25 +313,28 @@ export default function Page() {
                       totalWidth={totalWidth}
                     />
                     <div>
-                      {data.lanes.map((lane, idx) => (
+                      {data.lanes.map((lane: LaneType, idx: number) => (
                         <Lane
                           key={lane.id}
                           lane={lane}
-                          tasks={data.tasks.filter((t) => t.laneId === lane.id)}
+                          tasks={data.tasks.filter(
+                            (t: Task) => t.laneId === lane.id
+                          )}
                           allTasks={data.tasks}
                           startDate={startDate}
                           endDate={endDate}
                           view={view}
                           dayWidth={dayWidth}
                           totalWidth={totalWidth}
-                          onUpdateTask={(taskId, updater) =>
-                            updateTask(taskId, updater)
-                          }
-                          onClickTask={(task) => setSelectedTask(task)}
-                          onMoveTask={(taskId, newLaneId) => {
-                            setData((prev) => ({
+                          onUpdateTask={(
+                            taskId: string,
+                            updater: (task: Task) => Partial<Task>
+                          ) => updateTask(taskId, updater)}
+                          onClickTask={(task: Task) => setSelectedTask(task)}
+                          onMoveTask={(taskId: string, newLaneId: string) => {
+                            setData((prev: TimelineData) => ({
                               ...prev,
-                              tasks: prev.tasks.map((t) =>
+                              tasks: prev.tasks.map((t: Task) =>
                                 t.id === taskId
                                   ? { ...t, laneId: newLaneId }
                                   : t
@@ -335,7 +344,11 @@ export default function Page() {
                         />
                       ))}
                     </div>
-                    <TodayMarker startDate={startDate} dayWidth={dayWidth} />
+                    <TodayMarker
+                      startDate={startDate}
+                      endDate={endDate}
+                      dayWidth={dayWidth}
+                    />
                   </>
                 )}
               </div>
@@ -350,9 +363,9 @@ export default function Page() {
           lanes={data.lanes}
           onClose={() => setSelectedTask(null)}
           onSave={(changes) => {
-            setData((prev) => {
+            setData((prev: TimelineData) => {
               const isNewTask = !prev.tasks.some(
-                (t) => t.id === selectedTask.id
+                (t: Task) => t.id === selectedTask.id
               );
 
               if (isNewTask) {
@@ -361,7 +374,7 @@ export default function Page() {
                   tasks: [...prev.tasks, { ...selectedTask, ...changes }],
                 };
               } else {
-                const tasks = prev.tasks.map((t) =>
+                const tasks = prev.tasks.map((t: Task) =>
                   t.id === selectedTask.id ? { ...t, ...changes } : t
                 );
                 return { ...prev, tasks };
@@ -370,9 +383,9 @@ export default function Page() {
             setSelectedTask(null);
           }}
           onDelete={(taskId) => {
-            setData((prev) => ({
+            setData((prev: TimelineData) => ({
               ...prev,
-              tasks: prev.tasks.filter((t) => t.id !== taskId),
+              tasks: prev.tasks.filter((t: Task) => t.id !== taskId),
             }));
           }}
         />
