@@ -1,0 +1,54 @@
+{
+  "lanes": [
+    { "id": "frontend", "name": "Frontend" },
+    { "id": "backend", "name": "Backend" },
+    { "id": "design", "name": "Design" }
+  ],
+  "tasks": [
+    {
+      "id": "task1",
+      "name": "Landing Page Setup",
+      "laneId": "frontend",
+      "start": "2025-11-01",
+      "end": "2025-11-05",
+      "assignee": "Kartik",
+      "deps": []
+    },
+    {
+      "id": "task2",
+      "name": "API Design",
+      "laneId": "backend",
+      "start": "2025-11-03",
+      "end": "2025-11-08",
+      "assignee": "Priya",
+      "deps": []
+    },
+    {
+      "id": "task3",
+      "name": "Wireframes",
+      "laneId": "design",
+      "start": "2025-11-02",
+      "end": "2025-11-06",
+      "assignee": "Ravi",
+      "deps": []
+    },
+    {
+      "id": "task4",
+      "name": "Integrate Frontend & API",
+      "laneId": "frontend",
+      "start": "2025-11-07",
+      "end": "2025-11-12",
+      "assignee": "Kartik",
+      "deps": ["task1", "task2"]
+    },
+    {
+      "id": "task5",
+      "name": "Final Review",
+      "laneId": "design",
+      "start": "2025-11-11",
+      "end": "2025-11-13",
+      "assignee": "Ravi",
+      "deps": ["task3", "task4"]
+    }
+  ]
+}
